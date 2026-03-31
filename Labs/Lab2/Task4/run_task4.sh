@@ -9,18 +9,4 @@
 #SBATCH --constraint="gpunode,TitanX"
 #SBATCH --gres=gpu:1
 
-echo "=========================================="
-echo " LAB 2 - TASK 4: Grid-Stride Loop"
-echo "=========================================="
-echo ""
-
-echo "Node:    $(hostname)"
-echo "GPU:     $(nvidia-smi --query-gpu=name --format=csv,noheader)"
-echo ""
-
-# Run
-echo "Running ..."
-echo "------------------------------------------"
 ./task4
-echo "------------------------------------------"
-echo "Done."
