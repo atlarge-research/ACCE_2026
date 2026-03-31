@@ -4,6 +4,6 @@
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=TitanX
 
-module load cuda12.3/toolkit
+module load cuda12.6/toolkit
 
-nvprof --metrics achieved_occupancy ./vectorAdd_no_stride 32
+./NaiveMatrixMul 1024

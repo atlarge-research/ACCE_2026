@@ -4,6 +4,6 @@
 #SBATCH --gres=gpu:1
 #SBATCH --constraint=TitanX
 
-module load cuda12.3/toolkit
+module load cuda12.6/toolkit
 
 nvprof --query-metrics
