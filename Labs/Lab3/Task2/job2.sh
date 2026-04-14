@@ -6,4 +6,4 @@
 
 module load cuda12.6/toolkit
 
-nvprof --metrics warp_execution_efficiency,achieved_occupancy ./mm_blkdim 32
+nvprof --metrics achieved_occupancy ./mm_blkdim 8

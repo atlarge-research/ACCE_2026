@@ -4,7 +4,7 @@
 #include <time.h>
 
 // ---------------------------------------------------------------------------
-// GPU kernel with grid-stride loop -- YOU IMPLEMENT THIS
+// GPU kernel with grid-stride loop
 // ---------------------------------------------------------------------------
 __global__ void matmul_kernel_stride(float *A, float *B, float *C, int N, int K,
                                      int M) {
