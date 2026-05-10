@@ -4,4 +4,4 @@
 
 module load vivado/2024.1
 
-vitis_hls -f run_blockmatmul_no_dataflow_hls.tcl
+vitis_hls -f run_blockmatmul_hls.tcl

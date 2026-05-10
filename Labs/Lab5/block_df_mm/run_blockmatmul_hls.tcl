@@ -1,9 +1,9 @@
-open_project block_mm_no_dataflow.proj -reset
+open_project block_mm.proj -reset
 
 set_top blockmatmul
 
-add_files block_mm_no_dataflow.cpp
-add_files -tb blockmatmul_test_no_dataflow.cpp
+add_files block_mm.cpp
+add_files -tb blockmatmul_test.cpp
 
 open_solution solution -reset
 

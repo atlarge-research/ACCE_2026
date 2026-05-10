@@ -1,5 +1,5 @@
-#ifndef _BLOCK_MM_H_
-#define _BLOCK_MM_H_
+#ifndef _BLOCK_MM_
+#define _BLOCK_MM_
 #include "hls_stream.h"
 #include <iostream>
 #include <iomanip>
@@ -14,11 +14,15 @@ using namespace std;
 
 typedef int DTYPE;
 
-void load(DTYPE *in, hls::stream<DTYPE> &stream, int ib, int jb, int row_size);
+typedef struct { DTYPE a[BLOCK_SIZE]; } blockvec;
 
-void store(DTYPE *out, hls::stream<DTYPE> &stream, int ib, int jb, int row_size);
+typedef struct { DTYPE out[BLOCK_SIZE][BLOCK_SIZE]; } blockmat;
 
-void compute(hls::stream<DTYPE> &streamA, hls::stream<DTYPE> &streamB, hls::stream<DTYPE> &streamC);
+void load(DTYPE *in, DTYPE Block[BLOCK_SIZE][BLOCK_SIZE], int ib, int jb, int row_size);
+
+void store(DTYPE *out, DTYPE Block[BLOCK_SIZE][BLOCK_SIZE], int ib, int jb, int row_size);
+
+void compute(DTYPE Block_A[BLOCK_SIZE][BLOCK_SIZE], DTYPE Block_B[BLOCK_SIZE][BLOCK_SIZE], DTYPE Block_C[BLOCK_SIZE][BLOCK_SIZE]);
 
 void blockmatmul(DTYPE *A, DTYPE *B, DTYPE *C);
 #endif
