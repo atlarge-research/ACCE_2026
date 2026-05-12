@@ -2,8 +2,10 @@
 
 The `matrix_mul` folder contains implementation of matrix multiplication, showcasing how to apply pipelining, unrolling, and array partitioning optimization to improve performance.
 
-The `block_mm` folder contains basic and dataflow implementation of block matrix multiplication, using stream to connect different tasks.
+The `block_mm` folder contains a basic implementation of block matrix multiplication.
 
-`sbatch job.sh` and `sbatch job_no_dataflow.sh` to submit slurm job on DAS5 for corresponding implementation. 
+Lastly, the `block_df_mm` folder contains a version of the block multiplication that uses stream to connect different tasks as a dataflow implementation.
+
+`sbatch job.sh` can be used to submit the slurm jobs on DAS5 for these implementation. 
 
 
