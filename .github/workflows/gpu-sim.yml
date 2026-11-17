@@ -1,0 +1,72 @@
+name: GPU Simulator
+
+# Optional, non-required check. The hosted runners have no GPU, so this builds
+# a few of the complete CUDA examples from Lab 3 and runs them on a simulated
+# NVIDIA H100 (https://github.com/pantheongpu/pantheonsim). A simulator cannot
+# reproduce hardware-specific behavior or timing, so it complements running the
+# labs on a real GPU and does not replace it.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "Labs/Lab3/Task1/**"
+      - "Labs/Lab3/Task3/**"
+      - ".github/workflows/gpu-sim.yml"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lab3:
+    name: Lab 3 examples (CUDA 13.0 and simulated H100)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0
+        with:
+          persist-credentials: false
+
+      - name: Set up the simulated GPU and CUDA toolkit
+        uses: pantheongpu/setup-pantheonsim@deff5781e8adfd83dec98dd5242dcbc96a564773 # v0.1.10
+        with:
+          gpu: nvidia/h100
+          cuda-toolkit: "13.0"
+
+      # The Makefiles call `module load cuda...`, which only exists on the
+      # course cluster, so NVCC is overridden. compute_90 embeds PTX only, which
+      # the simulator runs, and it needs a shared CUDA runtime. The exercise
+      # skeleton in Task3 is not built (it has TODOs and does not compile).
+      - name: Build the Task 3 programs
+        run: |
+          make -C Labs/Lab3/Task3 NVCC="nvcc -arch=compute_90 -cudart shared" NaiveMatrixMul TiledMatrixMul_answer
+
+      # matmul.cu uses a 1024x1024 problem, which is slow in the simulator, so
+      # the size is reduced to 256 and the grid to 4x4 blocks. The grid-stride
+      # loop (64 threads per dimension for 256 elements) is still exercised.
+      # The programs print their verdict but exit 0 on a wrong result, so the
+      # output is checked here.
+      - name: Run matmul (grid-stride kernel)
+        working-directory: Labs/Lab3/Task1
+        run: |
+          sed -i 's/int N = 1024, K = 1024, M = 1024;/int N = 256, K = 256, M = 256;/; s/dim3 gridDim(32, 32);/dim3 gridDim(4, 4);/' matmul.cu
+          grep -q 'N = 256, K = 256' matmul.cu
+          grep -q 'gridDim(4, 4)' matmul.cu
+          make NVCC="nvcc -arch=compute_90 -cudart shared" matmul
+          vgpu run ./matmul 2>&1 | tee out.txt
+          grep -q 'Test PASSED' out.txt
+          if grep -Ei 'Test FAILED|VirtualGPU error|no (cuda-capable )?device' out.txt; then exit 1; fi
+
+      - name: Run naive and tiled matrix multiplication
+        working-directory: Labs/Lab3/Task3
+        run: |
+          for prog in NaiveMatrixMul TiledMatrixMul_answer; do
+            vgpu run ./$prog 128 2>&1 | tee "$prog.txt"
+            grep -Eq 'Result verification passed!|Verification PASSED!' "$prog.txt"
+            if grep -Ei 'verification failed|CUDA Error|VirtualGPU error|no (cuda-capable )?device' "$prog.txt"; then exit 1; fi
+          done
